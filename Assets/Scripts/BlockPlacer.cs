@@ -8,6 +8,8 @@ public class BlockPlacer : MonoBehaviour
     [SerializeField] GameObject previewBlock;
     [SerializeField] LayerMask blockLayer;
     [SerializeField] float maxDistance; // 최대 설치 거리
+    [SerializeField] Vector3 minRange;
+    [SerializeField] Vector3 maxRange;
 
     Vector3 installPos; // 설치할 위치
     RaycastHit hit;
@@ -22,13 +24,19 @@ public class BlockPlacer : MonoBehaviour
             installPos = Vector3.Scale(Vector3Int.RoundToInt((hit.point + hit.normal.MultiplyVector(size * 0.5f)).DivideVector(size)), size);
 
             // 클릭시 (0,0,0) ~ (15, 31, 15) 범위 안이면 블록 생성
-            if (Input.GetMouseButtonDown(0) && installPos.InRange(Vector3.zero, new Vector3(15, 31, 15)))
+            if (Input.GetMouseButtonDown(0) && installPos.InRange(minRange, maxRange))
             {
                 Instantiate(block, installPos, block.transform.rotation);
             }
+
+            // 우클릭시 블록 지우기
+            if (Input.GetMouseButtonDown(1))
+            {
+                Destroy(hit.collider.gameObject);
+            }
         }
 
-        if (hit.transform && installPos.InRange(Vector3.zero, new Vector3(15, 31, 15)))
+        if (hit.transform && installPos.InRange(minRange, maxRange))
         {
             previewBlock.SetActive(true);
             previewBlock.transform.position = installPos;
@@ -50,8 +58,8 @@ public class BlockPlacer : MonoBehaviour
 
 }
 
-public static class Vector3Extensions 
-{ 
+public static class Vector3Extensions
+{
     public static Vector3 DivideVector(this Vector3 vector, Vector3 divideVector)
     {
         return new Vector3(vector.x / divideVector.x, vector.y / divideVector.y, vector.z / divideVector.z);

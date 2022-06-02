@@ -255,6 +255,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 576
   maxDistance: 1000
+  minRange: {x: 0, y: 0, z: 0}
+  maxRange: {x: 15, y: 31, z: 15}
 --- !u!4 &502438148
 Transform:
   m_ObjectHideFlags: 0
