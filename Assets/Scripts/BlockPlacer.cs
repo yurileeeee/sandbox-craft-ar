@@ -14,7 +14,7 @@ public class BlockPlacer : MonoBehaviour
     [SerializeField] float maxDistance; // 최대 설치 거리
     [SerializeField] Vector3 minRange;
     [SerializeField] Vector3 maxRange;
-    [SerializeField] Button craftButton;
+    [SerializeField] Inventory inventory;
 
     Vector3 installPos; // 설치할 위치
     RaycastHit hit;
@@ -62,7 +62,8 @@ public class BlockPlacer : MonoBehaviour
     {
         if (installPos.InRange(minRange, maxRange))
         {
-            Instantiate(block, installPos, Quaternion.identity);
+            GameObject blockObj = Instantiate(block, installPos, Quaternion.identity);
+            //blockObj.GetComponent<Renderer>().material.SetTexture("_MainTex", inventory.GetActiveTexture());
         }
     }
 
