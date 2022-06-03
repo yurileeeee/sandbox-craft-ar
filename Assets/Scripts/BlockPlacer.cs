@@ -1,8 +1,9 @@
-//# define TEST
+# define TEST
 
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class BlockPlacer : MonoBehaviour
@@ -31,17 +32,10 @@ public class BlockPlacer : MonoBehaviour
             // 설치할 위치를 나눠서 반올림해서 다시 곱하는 방식
             installPos = Vector3.Scale(Vector3Int.RoundToInt((hit.point + hit.normal.MultiplyVector(size * 0.5f)).DivideVector(size)), size);
 
-            //// 클릭시 (0,0,0) ~ (15, 31, 15) 범위 안이면 블록 생성
-            //if (Input.GetMouseButtonDown(0))
-            //{
-            //    CraftClick();
-            //}
-
-            //// 우클릭시 블록 지우기
-            //if (Input.GetMouseButtonDown(1))
-            //{
-            //    Destroy(hit.collider.gameObject);
-            //}
+            if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
+                CraftClick();
+            if (Input.GetMouseButtonDown(1) && !EventSystem.current.IsPointerOverGameObject())
+                BreakClick();
         }
 
         if (hit.transform && installPos.InRange(minRange, maxRange))
