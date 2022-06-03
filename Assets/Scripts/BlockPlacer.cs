@@ -1,4 +1,4 @@
-# define TEST
+//# define TEST
 
 using System.Collections;
 using System.Collections.Generic;
@@ -21,21 +21,28 @@ public class BlockPlacer : MonoBehaviour
 
     private void Update()
     {
-#if TEST
-        if (Physics.Raycast(Camera.main.transform.position, Camera.main.ScreenPointToRay(Input.mousePosition).direction, out hit, maxDistance, blockLayer)) // PC용
-#else
-        if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out hit, maxDistance, blockLayer)) // AR용
-#endif
+        if (!GameManager.Inst.isBuildMode)
+        {
+            previewBlock.SetActive(false);
+            return;
+        }
+
+        Vector3 rayDirection = GameManager.Inst.isTest ? Camera.main.ScreenPointToRay(Input.mousePosition).direction : Camera.main.transform.forward;
+
+        if (Physics.Raycast(Camera.main.transform.position, rayDirection, out hit, maxDistance, blockLayer))
         {
             Vector3 size = block.transform.lossyScale;
 
             // 설치할 위치를 나눠서 반올림해서 다시 곱하는 방식
             installPos = Vector3.Scale(Vector3Int.RoundToInt((hit.point + hit.normal.MultiplyVector(size * 0.5f)).DivideVector(size)), size);
 
-            if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
-                CraftClick();
-            if (Input.GetMouseButtonDown(1) && !EventSystem.current.IsPointerOverGameObject())
-                BreakClick();
+            if (GameManager.Inst.isTest && !EventSystem.current.IsPointerOverGameObject())
+            {
+                if (Input.GetMouseButtonDown(0) && !EventSystem.current.IsPointerOverGameObject())
+                    CraftClick();
+                if (Input.GetMouseButtonDown(1) && !EventSystem.current.IsPointerOverGameObject())
+                    BreakClick();
+            }
         }
 
         if (hit.transform && installPos.InRange(minRange, maxRange))
@@ -60,15 +67,22 @@ public class BlockPlacer : MonoBehaviour
 
     public void CraftClick()
     {
+        if (!GameManager.Inst.isBuildMode)
+            return;
+
         if (installPos.InRange(minRange, maxRange))
         {
             GameObject blockObj = Instantiate(block, installPos, Quaternion.identity);
-            //blockObj.GetComponent<Renderer>().material.SetTexture("_MainTex", inventory.GetActiveTexture());
+            // material 을 새로 만듦
+            blockObj.GetComponent<Renderer>().material = inventory.GetMaterial();
         }
     }
 
     public void BreakClick()
     {
+        if (!GameManager.Inst.isBuildMode)
+            return;
+
         Destroy(hit.collider.gameObject);
     }
 }
