@@ -17,23 +17,30 @@ public class Inventory : MonoBehaviour
     [SerializeField] Item[] items;
     [SerializeField] RectTransform[] slots;
     [SerializeField] RectTransform activeSlot;
+    [SerializeField] Material blockMaterial;
 
-    Dictionary<int, Material> materialCodeTable;
-
+    Dictionary<int, Material> materialCodeTable = new Dictionary<int, Material>();
     int activeSlotCode = 0;
-
-    public bool GetActiveTexture(out Texture2D texture)
-    {
-        texture = items[activeSlotCode].texture;
-
-        return false;
-    }
 
 
     void Start()
     {
-        materialCodeTable = new Dictionary<int, Material>();
         activeSlot.transform.position = slots[activeSlotCode].transform.position;
+    }
+
+    public Material GetMaterial()
+    {
+        if (materialCodeTable.ContainsKey(activeSlotCode))
+        {
+            return materialCodeTable[activeSlotCode];
+        }
+        else
+        {
+            Material material = new Material(blockMaterial);
+            material.mainTexture = items[activeSlotCode].texture;
+            materialCodeTable.Add(activeSlotCode, material);
+            return material;
+        }
     }
 
     public void SlockClick(int code)
