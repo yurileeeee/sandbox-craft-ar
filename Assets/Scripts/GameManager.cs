@@ -20,23 +20,26 @@ public class GameManager : MonoBehaviour
     [SerializeField] ARRaycastManager arRaycaster;
     List<ARRaycastHit> originHits = new List<ARRaycastHit>();
 
-    [Header("UI")]
+    [Header("Panel")]
     [SerializeField] RectTransform gamePanel;
     [SerializeField] RectTransform menuPanel;
     [SerializeField] RectTransform joyPanel;
     [SerializeField] GameObject menuBtn;
 
+    [Header("ETC")]
+    public bool isBuildMode = true;
+    public GameObject plane;
+    [SerializeField] float boostSpeed;
+
     bool onMenu = false;
     bool isBoost = false;
-    public bool isBuildMode = true;
-    public GameObject testCube;
-    [SerializeField] float boostSpeed;
 
     private void Awake()
     {
         Inst = this;
 #if !UNITY_EDITOR
         isTest = false;
+        plane.SetActive(false);
 #endif
         Array.ForEach(pcObjects, x => x.SetActive(isTest)); 
         Array.ForEach(arObjects, x => x.SetActive(!isTest));
@@ -68,6 +71,7 @@ public class GameManager : MonoBehaviour
             Pose hitpose = originHits[0].pose;
 
             arOrigin.MakeContentAppearAt(arOrigin.transform, hitpose.position + Vector3.up * 1.5f, hitpose.rotation);
+            plane.SetActive(true);
         }
     }
 
