@@ -18,6 +18,7 @@ public class BlockPlacer : MonoBehaviour
 
     Vector3 installPos; // 설치할 위치
     RaycastHit hit;
+    Vector3 rayDirection;
 
     private void Update()
     {
@@ -27,7 +28,7 @@ public class BlockPlacer : MonoBehaviour
             return;
         }
 
-        Vector3 rayDirection = GameManager.Inst.isTest ? Camera.main.ScreenPointToRay(Input.mousePosition).direction : Camera.main.transform.forward;
+        rayDirection = GameManager.Inst.isTest ? Camera.main.ScreenPointToRay(Input.mousePosition).direction : Camera.main.transform.forward;
 
         if (Physics.Raycast(Camera.main.transform.position, rayDirection, out hit, maxDistance, blockLayer))
         {
