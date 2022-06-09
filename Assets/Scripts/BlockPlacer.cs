@@ -58,14 +58,6 @@ public class BlockPlacer : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmos()
-    {
-        if (hit.transform)
-        {
-            Gizmos.DrawWireCube(installPos, block.transform.lossyScale);
-        }
-    }
-
     public void CraftClick()
     {
         if (!GameManager.Inst.isBuildMode)
@@ -76,6 +68,7 @@ public class BlockPlacer : MonoBehaviour
             GameObject blockObj = Instantiate(block, installPos, Quaternion.identity);
             // material À» »õ·Î ¸¸µê
             blockObj.GetComponent<Renderer>().material = inventory.GetMaterial();
+            GameManager.PlaySound("craft");
         }
     }
 
@@ -84,7 +77,11 @@ public class BlockPlacer : MonoBehaviour
         if (!GameManager.Inst.isBuildMode)
             return;
 
-        Destroy(hit.collider.gameObject);
+        if (hit.collider.CompareTag("Block"))
+        {
+            Destroy(hit.collider.gameObject);
+            GameManager.PlaySound("break");
+        }
     }
 }
 

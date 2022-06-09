@@ -47,5 +47,6 @@ public class Inventory : MonoBehaviour
     {
         activeSlotCode = code;
         activeSlot.transform.position = slots[activeSlotCode].transform.position;
+        GameManager.PlaySound("ui_click");
     }
 }
