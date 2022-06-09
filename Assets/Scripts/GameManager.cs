@@ -33,6 +33,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] RectTransform menuPanel;
     [SerializeField] RectTransform joyPanel;
     [SerializeField] GameObject menuBtn;
+    [SerializeField] GameObject helpBtn;
+
+    [Header("PopUp")]
+    [SerializeField] GameObject uiBlock;
+    [SerializeField] Transform exitPopUp;
+    [SerializeField] Transform helpPopUp;
 
     [Header("ETC")]
     public GameObject plane;
@@ -50,20 +56,22 @@ public class GameManager : MonoBehaviour
         Inst = this;
 #if !UNITY_EDITOR
         isTest = false;
-        plane.SetActive(false);
+        // plane.SetActive(false);
 #endif
         Array.ForEach(pcObjects, x => x.SetActive(isTest)); 
         Array.ForEach(arObjects, x => x.SetActive(!isTest));
         
         ShowPanel("GamePanel");
         ArPlaneEnable(false);
+        ControlExitPopup(false);
+        ControlHelpPopup(false);
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            MenuClick();
+            ControlExitPopup(true);
         }
 
         if (isBoost)
@@ -117,7 +125,7 @@ public class GameManager : MonoBehaviour
         ArPlaneEnable(onMenu);
 
         StopAllCoroutines();
-        StartCoroutine(MenuClickCo(!onMenu));
+        StartCoroutine(TopClickCo(!onMenu));
 
         if (!onMenu && !isBuildMode)
         {
@@ -132,10 +140,11 @@ public class GameManager : MonoBehaviour
         PlaySound("ui_click");
     }
 
-    IEnumerator MenuClickCo(bool b)
+    IEnumerator TopClickCo(bool b)
     {
         yield return new WaitForSeconds(b ? 0.3f : 0);
         menuBtn.SetActive(b);
+        helpBtn.SetActive(b);
     }
 
     void ArPlaneEnable(bool b)
@@ -160,6 +169,12 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
+    public void HelpClick()
+    {
+        PlaySound("ui_click");
+        ControlHelpPopup(true);
+    }
+
     public void BuildModeToggle(bool isBuildMode)
     {
         this.isBuildMode = isBuildMode;
@@ -182,5 +197,34 @@ public class GameManager : MonoBehaviour
         AudioClip audioClip = Array.Find(Inst.sounds, x => x.name == name).audioClip;
         Inst.audioSource.pitch = UnityEngine.Random.Range(0.8f, 1.3f);
         Inst.audioSource.PlayOneShot(audioClip);
+    }
+
+    public void ControlExitPopup(bool active)
+    {
+        uiBlock.SetActive(active);
+
+        if (active)
+        {
+            exitPopUp.DOScale(1.2f, 0.4f);
+        }
+        else
+        {
+            exitPopUp.DOScale(0f, 0.4f);
+        }
+    }
+
+    public void ControlHelpPopup(bool active)
+    {
+        uiBlock.SetActive(active);
+
+        if (active)
+        {
+            helpPopUp.DOScale(1.2f, 0.4f);
+        }
+        else
+        {
+            helpPopUp.DOScale(0f, 0.4f);
+            helpPopUp.GetComponent<HelpPopUp>().Reset();
+        }
     }
 }

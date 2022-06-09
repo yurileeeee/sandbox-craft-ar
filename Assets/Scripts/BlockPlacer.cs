@@ -8,6 +8,7 @@ using UnityEngine.UI;
 
 public class BlockPlacer : MonoBehaviour
 {
+    [SerializeField] Transform instantiateBlock;
     [SerializeField] GameObject block;
     [SerializeField] GameObject previewBlock;
     [SerializeField] LayerMask blockLayer;
@@ -15,6 +16,7 @@ public class BlockPlacer : MonoBehaviour
     [SerializeField] Vector3 minRange;
     [SerializeField] Vector3 maxRange;
     [SerializeField] Inventory inventory;
+    [SerializeField] List<GameObject> blockList = new List<GameObject>();
 
     Vector3 installPos; // 설치할 위치
     RaycastHit hit;
@@ -65,7 +67,7 @@ public class BlockPlacer : MonoBehaviour
 
         if (installPos.InRange(minRange, maxRange))
         {
-            GameObject blockObj = Instantiate(block, installPos, Quaternion.identity);
+            GameObject blockObj = Instantiate(block, installPos, Quaternion.identity, instantiateBlock);
             // material 을 새로 만듦
             blockObj.GetComponent<Renderer>().material = inventory.GetMaterial();
             GameManager.PlaySound("craft");
