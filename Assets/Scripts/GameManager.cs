@@ -43,6 +43,7 @@ public class GameManager : MonoBehaviour
     [Header("ETC")]
     public GameObject plane;
     public bool isBuildMode = true;
+    public bool isSelectMode = false;
     [SerializeField] float boostSpeed;
     [SerializeField] FixedJoystick fixedJoystick;
     [SerializeField] AudioSource audioSource;
@@ -101,7 +102,7 @@ public class GameManager : MonoBehaviour
     public void ShowPanel(string panelName)
     {
         gamePanel.DOAnchorPos(new Vector2(0, -600), 0.4f);
-        menuPanel.DOAnchorPos(new Vector2(0, 600), 0.4f);
+        menuPanel.DOAnchorPos(new Vector2(0, 900), 0.4f);
         joyPanel.DOAnchorPos(new Vector2(0, -600), 0.4f);
 
         if (panelName == gamePanel.name)
@@ -189,6 +190,22 @@ public class GameManager : MonoBehaviour
         else
         {
             arOrigin.transform.localScale = Vector3.one;
+        }
+    }
+
+    public void SelectModeToggle(bool isSelectMode)
+    {
+        this.isSelectMode = isSelectMode;
+        PlaySound("ui_click");
+
+        // true 이면 선택 가능, false 이면 선택 불가능
+        if (isSelectMode)
+        {
+
+        }
+        else
+        {
+
         }
     }
 

@@ -10,7 +10,9 @@ public class BlockPlacer : MonoBehaviour
 {
     [SerializeField] Transform instantiateBlock;
     [SerializeField] GameObject block;
+    [SerializeField] GameObject cubeWithQuads;
     [SerializeField] GameObject previewBlock;
+    [SerializeField] GameObject previewQuad;
     [SerializeField] LayerMask blockLayer;
     [SerializeField] float maxDistance; // 최대 설치 거리
     [SerializeField] Vector3 minRange;
@@ -34,9 +36,10 @@ public class BlockPlacer : MonoBehaviour
 
         if (Physics.Raycast(Camera.main.transform.position, rayDirection, out hit, maxDistance, blockLayer))
         {
-            Vector3 size = block.transform.lossyScale;
+            //Vector3 size = block.transform.lossyScale;
+            Vector3 size = cubeWithQuads.transform.lossyScale;
 
-            // 설치할 위치를 나눠서 반올림해서 다시 곱하는 방식
+            // 설치할 위치 계산
             installPos = Vector3.Scale(Vector3Int.RoundToInt((hit.point + hit.normal.MultiplyVector(size * 0.5f)).DivideVector(size)), size);
 
             if (GameManager.Inst.isTest && !EventSystem.current.IsPointerOverGameObject())
@@ -52,11 +55,17 @@ public class BlockPlacer : MonoBehaviour
         {
             previewBlock.SetActive(true);
             previewBlock.transform.position = installPos;
-            previewBlock.transform.localScale = block.transform.lossyScale;
+            //previewBlock.transform.localScale = block.transform.lossyScale;
+            previewBlock.transform.localScale = cubeWithQuads.transform.lossyScale;
+
+            previewQuad.SetActive(true);
+            previewQuad.transform.position = hit.transform.position;
+            previewQuad.transform.rotation = hit.transform.rotation;
         }
         else
         {
             previewBlock.SetActive(false);
+            previewQuad.SetActive(false);
         }
     }
 
@@ -67,9 +76,23 @@ public class BlockPlacer : MonoBehaviour
 
         if (installPos.InRange(minRange, maxRange))
         {
-            GameObject blockObj = Instantiate(block, installPos, Quaternion.identity, instantiateBlock);
-            // material 을 새로 만듦
-            blockObj.GetComponent<Renderer>().material = inventory.GetMaterial();
+            //GameObject blockObj = Instantiate(block, installPos, Quaternion.identity, instantiateBlock);
+            //blockObj.GetComponent<Renderer>().material = inventory.GetMaterial();
+
+            //blockObj.name = "Block " + blockList.Count.ToString();
+            //blockList.Add(blockObj);
+
+            GameObject blockObj = Instantiate(cubeWithQuads, installPos, Quaternion.identity, instantiateBlock);
+
+            Renderer[] quadRenderers = blockObj.GetComponentsInChildren<Renderer>();
+            foreach (var renderer in quadRenderers)
+            {
+                renderer.material = inventory.GetMaterial();
+            }
+
+            blockObj.name = "Block " + blockList.Count.ToString();
+            blockList.Add(blockObj);
+
             GameManager.PlaySound("craft");
         }
     }
@@ -79,9 +102,15 @@ public class BlockPlacer : MonoBehaviour
         if (!GameManager.Inst.isBuildMode)
             return;
 
-        if (hit.collider.CompareTag("Block"))
+        //if (hit.collider.CompareTag("Block"))
+        //{
+        //    Destroy(hit.collider.gameObject);
+        //    GameManager.PlaySound("break");
+        //}
+
+        if (hit.transform.CompareTag("Quad"))
         {
-            Destroy(hit.collider.gameObject);
+            Destroy(hit.transform.parent.gameObject);
             GameManager.PlaySound("break");
         }
     }
