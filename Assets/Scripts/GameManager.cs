@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Inst { get; private set; }
 
-    public bool isTest; // PC인지
+    public bool isPC; // PC인지
     [SerializeField] GameObject[] pcObjects;
     [SerializeField] GameObject[] arObjects;
 
@@ -32,6 +32,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] RectTransform gamePanel;
     [SerializeField] RectTransform menuPanel;
     [SerializeField] RectTransform joyPanel;
+    [SerializeField] RectTransform selectPanel;
     [SerializeField] GameObject menuBtn;
     [SerializeField] GameObject helpBtn;
 
@@ -55,13 +56,7 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         Inst = this;
-#if !UNITY_EDITOR
-        isTest = false;
-        // plane.SetActive(false);
-#endif
-        Array.ForEach(pcObjects, x => x.SetActive(isTest)); 
-        Array.ForEach(arObjects, x => x.SetActive(!isTest));
-        
+
         ShowPanel("GamePanel");
         ArPlaneEnable(false);
         ControlExitPopup(false);
@@ -69,7 +64,10 @@ public class GameManager : MonoBehaviour
     }
 
     private void Update()
-    {
+    { 
+        Array.ForEach(pcObjects, x => x.SetActive(isPC));
+        Array.ForEach(arObjects, x => x.SetActive(!isPC));
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             ControlExitPopup(true);
@@ -85,25 +83,12 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void PlaceOrigin()
-    {
-        arRaycaster.Raycast(new Vector2(Screen.width * 0.5f, Screen.height * 0.5f), originHits, TrackableType.Planes);
-
-        if (originHits.Count > 0)
-        {
-            Pose hitpose = originHits[0].pose;
-
-            arOrigin.MakeContentAppearAt(arOrigin.transform, hitpose.position + Vector3.up * 1.5f, hitpose.rotation);
-            plane.SetActive(true);
-            PlaySound("ui_click");
-        }
-    }
-
     public void ShowPanel(string panelName)
     {
         gamePanel.DOAnchorPos(new Vector2(0, -600), 0.4f);
         menuPanel.DOAnchorPos(new Vector2(0, 900), 0.4f);
         joyPanel.DOAnchorPos(new Vector2(0, -600), 0.4f);
+        selectPanel.DOAnchorPos(new Vector2(0, -600), 0.4f);
 
         if (panelName == gamePanel.name)
         {
@@ -116,6 +101,10 @@ public class GameManager : MonoBehaviour
         else if (panelName == joyPanel.name)
         {
             joyPanel.DOAnchorPos(new Vector2(0, 0), 0.4f);
+        }
+        else if (panelName == selectPanel.name)
+        {
+            selectPanel.DOAnchorPos(new Vector2(0, 0), 0.4f);
         }
     }
 
@@ -136,6 +125,11 @@ public class GameManager : MonoBehaviour
         else
         {
             isBoost = false;
+        }
+
+        if (!onMenu && isSelectMode && isBuildMode)
+        {
+            ShowPanel("SelectPanel");
         }
 
         PlaySound("ui_click");
@@ -163,19 +157,19 @@ public class GameManager : MonoBehaviour
         Application.Quit();
     }
 
-    public void NewGameClick()
-    {
-        //Array.ForEach(GameObject.FindGameObjectsWithTag("Block"), x => Destroy(x));
-        PlaySound("ui_click");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
-
     public void HelpClick()
     {
         PlaySound("ui_click");
         ControlHelpPopup(true);
     }
 
+    public void ArModeToggle(bool isArMode)
+    {
+        this.isPC = !isArMode;
+        PlaySound("ui_click");
+    }
+
+    #region MenuPanel
     public void BuildModeToggle(bool isBuildMode)
     {
         this.isBuildMode = isBuildMode;
@@ -197,25 +191,42 @@ public class GameManager : MonoBehaviour
     {
         this.isSelectMode = isSelectMode;
         PlaySound("ui_click");
+    }
 
-        // true 이면 선택 가능, false 이면 선택 불가능
-        if (isSelectMode)
+    // 바닥 생성 버튼 클릭
+    public void PlaceOrigin()
+    {
+        arRaycaster.Raycast(new Vector2(Screen.width * 0.5f, Screen.height * 0.5f), originHits, TrackableType.Planes);
+
+        if (originHits.Count > 0)
         {
+            Pose hitpose = originHits[0].pose;
 
-        }
-        else
-        {
-
+            arOrigin.MakeContentAppearAt(arOrigin.transform, hitpose.position + Vector3.up * 1.5f, hitpose.rotation);
+            plane.SetActive(true);
+            PlaySound("ui_click");
         }
     }
 
+    // 다시하기 버튼 클릭
+    public void NewGameClick()
+    {
+        //Array.ForEach(GameObject.FindGameObjectsWithTag("Block"), x => Destroy(x));
+        PlaySound("ui_click");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+    #endregion
+
+    #region 사운드 
     public static void PlaySound(string name)
     {
         AudioClip audioClip = Array.Find(Inst.sounds, x => x.name == name).audioClip;
         Inst.audioSource.pitch = UnityEngine.Random.Range(0.8f, 1.3f);
         Inst.audioSource.PlayOneShot(audioClip);
     }
+    #endregion
 
+    #region 팝업창 관련 함수
     public void ControlExitPopup(bool active)
     {
         uiBlock.SetActive(active);
@@ -244,4 +255,5 @@ public class GameManager : MonoBehaviour
             helpPopUp.GetComponent<HelpPopUp>().Reset();
         }
     }
+    #endregion
 }

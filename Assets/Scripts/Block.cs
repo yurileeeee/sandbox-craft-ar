@@ -1,14 +1,34 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class Block : MonoBehaviour
 {
-    [SerializeField] Material selectMaterial;
+    public BlockSide[] side;
+    public GameObject insideCube;
+    public GameObject previewCube;
+    public bool isSelected = false;
 
-
-    public void BlockClick()
+    private void Update()
     {
-        this.GetComponent<Renderer>().material = selectMaterial;
+        if (isSelected)
+        {
+            SelectBlock();
+        }
+        else
+        {
+            DeselectBlock();
+        }
+    }
+
+    public void SelectBlock()
+    {
+        previewCube.SetActive(true);
+    }
+
+    public void DeselectBlock()
+    {
+        previewCube.SetActive(false);
     }
 }
